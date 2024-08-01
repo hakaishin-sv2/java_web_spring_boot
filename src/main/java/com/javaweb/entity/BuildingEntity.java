@@ -176,7 +176,6 @@ public class BuildingEntity {
             inverseJoinColumns = @JoinColumn(name = "staffid")
     )
     private List<UserEntity> staffs = new ArrayList<>();
-
     public void setStaffs(List<UserEntity> staffs) {
         this.staffs = staffs;
     }

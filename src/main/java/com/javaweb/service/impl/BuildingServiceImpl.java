@@ -10,7 +10,7 @@ import com.javaweb.model.dto.UserDTO;
 import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.ResponseDTO;
 import com.javaweb.model.response.StaffResponseDTO;
-import com.javaweb.repository.AssignmentBuildingRepository;
+
 import com.javaweb.repository.BuildingRentypeRepository;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.UserRepository;
@@ -30,8 +30,6 @@ public class BuildingServiceImpl implements BuildingService {
     private  UserRepository  userRepository;
     @Autowired
     private BuildingRentypeRepository buildingRentypeRepository;
-    @Autowired
-    private AssignmentBuildingRepository assignmentBuildingRepository;
     @Autowired
     private BuildingConverter buildingConverter;
 
@@ -90,22 +88,42 @@ public class BuildingServiceImpl implements BuildingService {
     }
 
     @Override
-    public ResponseDTO listStaff(Long buildingid) {
-       List<UserEntity> listStaff = userRepository.findByStatusAndRoles_Code(1,"STAFF");
-       Optional<BuildingEntity> buildingEntities =buildingRepository.findById(buildingid);
-       List<Long> arrayIdStaff_ByBuildingID =  assignmentBuildingRepository.findStaffIdsByBuildingId(buildingid);
-       List<StaffResponseDTO> staffResponseDTOS = new ArrayList<>();
-       for(UserEntity userEntity : listStaff){
-           StaffResponseDTO staffResponseDTO= new StaffResponseDTO();
-           staffResponseDTO.setFullName(userEntity.getFullName());
-           staffResponseDTO.setStaffId(userEntity.getId());
-           if(arrayIdStaff_ByBuildingID.contains(userEntity.getId())){
-               staffResponseDTO.setChecked("checked");
-           }else {
-               staffResponseDTO.setChecked("");
-           }
-           staffResponseDTOS.add(staffResponseDTO);
-       }
+    public ResponseDTO listStaff(Long buildingId) {
+        // Lấy danh sách nhân viên với trạng thái là 1 và vai trò là STAFF
+        List<UserEntity> listStaff = userRepository.findByStatusAndRoles_Code(1, "STAFF");
+
+        // Lấy thông tin tòa nhà từ buildingId
+        Optional<BuildingEntity> buildingOptional = buildingRepository.findById(buildingId);
+
+        // Kiểm tra nếu tòa nhà tồn tại
+        if (!buildingOptional.isPresent()) {
+            ResponseDTO responseDTO = new ResponseDTO();
+            responseDTO.setMessage("Building not found");
+            return responseDTO;
+        }
+
+        BuildingEntity building = buildingOptional.get();
+
+        // Lấy danh sách nhân viên đã được gán cho tòa nhà
+        List<UserEntity> assignedStaff = building.getStaffs();
+
+        // Tạo danh sách DTO để trả về
+        List<StaffResponseDTO> staffResponseDTOS = new ArrayList<>();
+
+        for (UserEntity userEntity : listStaff) {
+            StaffResponseDTO staffResponseDTO = new StaffResponseDTO();
+            staffResponseDTO.setFullName(userEntity.getFullName());
+            staffResponseDTO.setStaffId(userEntity.getId());
+
+            // Kiểm tra nếu nhân viên đã được gán cho tòa nhà
+            if (assignedStaff.contains(userEntity)) {
+                staffResponseDTO.setChecked("checked");
+            } else {
+                staffResponseDTO.setChecked("");
+            }
+
+            staffResponseDTOS.add(staffResponseDTO);
+        }
 
         // Sắp xếp danh sách staffResponseDTOS sao cho những phần tử có thuộc tính checked lên đầu
         Collections.sort(staffResponseDTOS, new Comparator<StaffResponseDTO>() {
@@ -114,11 +132,13 @@ public class BuildingServiceImpl implements BuildingService {
                 return o2.getChecked().compareTo(o1.getChecked());
             }
         });
-       ResponseDTO responseDTO = new ResponseDTO();
-       responseDTO.setData(staffResponseDTOS);
-       responseDTO.setMessage("Success");
-       return  responseDTO;
+
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setData(staffResponseDTOS);
+        responseDTO.setMessage("Success");
+        return responseDTO;
     }
+
 
     @Override
     @Transactional
