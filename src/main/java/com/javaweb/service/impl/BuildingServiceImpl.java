@@ -1,7 +1,7 @@
 package com.javaweb.service.impl;
 
 import com.javaweb.converter.BuildingConverter;
-import com.javaweb.entity.AssignmentBuildingEntity;
+
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.DistrictEntity;
 import com.javaweb.entity.UserEntity;
@@ -123,27 +123,22 @@ public class BuildingServiceImpl implements BuildingService {
     @Override
     @Transactional
     public ResponseDTO GiaoToaNha(Long buildingId, List<Long> staffIds) {
-        assignmentBuildingRepository.deleteByBuildingId(buildingId);
-        BuildingEntity building = buildingRepository.findById(buildingId).orElse(null);
-        if (building == null) {
-            ResponseDTO responseDTO = new ResponseDTO();
-            responseDTO.setMessage("Building not found");
-            return responseDTO;
-        }
-        for (Long staffId : staffIds) {
-            UserEntity staff = userRepository.findById(staffId).orElse(null);
-            if (staff != null) {
-                AssignmentBuildingEntity assignmentBuilding = new AssignmentBuildingEntity();
-                assignmentBuilding.setBuilding(building);
-                assignmentBuilding.setStaff(staff);
-                assignmentBuildingRepository.save(assignmentBuilding);
+        try {
+            BuildingEntity building = buildingRepository.findById(buildingId).orElseThrow(() -> new RuntimeException("Building not found"));
+            List<UserEntity> staffList = new ArrayList<>();
+            for (Long staffId : staffIds) {
+                UserEntity staff = userRepository.findById(staffId).orElseThrow(() -> new RuntimeException("Staff not found"));
+                staffList.add(staff);
             }
+            building.setStaffs(staffList);
+            buildingRepository.save(building);
+            ResponseDTO responseDTO = new ResponseDTO();
+            responseDTO.setMessage("Success");
+            return responseDTO;
+        } catch (Exception e) {
+            throw new RuntimeException("Error assigning building", e);
         }
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setMessage("Success");
-        return responseDTO;
     }
-
 //    @Override
 //    public List<UserEntity> findUsersByRole(Long role) {
 //       List<UserEntity> list = buildingRepository.findUsersByRole(role);

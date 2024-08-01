@@ -133,14 +133,14 @@ public class UserEntity extends BaseEntity {
         this.id = id;
     }
 
-    @OneToMany(mappedBy = "staff",fetch = FetchType.LAZY)
-    List<AssignmentBuildingEntity> assignmentBuildingEntities = new ArrayList<>();
+    @ManyToMany(mappedBy = "staffs", fetch = FetchType.LAZY)
+    private List<BuildingEntity> buildings = new ArrayList<>();
 
-    public List<AssignmentBuildingEntity> getListAssignmentBuildings() {
-        return assignmentBuildingEntities;
+    public void setBuildings(List<BuildingEntity> buildings) {
+        this.buildings = buildings;
     }
 
-    public void setListAssignmentBuildings( List<AssignmentBuildingEntity> buildingRentTypes) {
-        this.assignmentBuildingEntities = buildingRentTypes;
+    public List<BuildingEntity> getBuildings() {
+        return buildings;
     }
 }

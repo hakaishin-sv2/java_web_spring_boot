@@ -4,6 +4,7 @@ import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -163,14 +164,20 @@ public class BuildingEntity {
     public void setBuildingRentTypes( List<BuildingRenttypeEntity> buildingRentTypes) {
         this.buildingRentTypes = buildingRentTypes;
     }
-    @OneToMany(mappedBy = "building",fetch = FetchType.LAZY)
-    List<AssignmentBuildingEntity> listAssignmentBuildings;
 
-    public List<AssignmentBuildingEntity> getListAssignmentBuildings() {
-        return listAssignmentBuildings;
+    public List<UserEntity> getStaffs() {
+        return staffs;
     }
 
-    public void setListAssignmentBuildings( List<AssignmentBuildingEntity> buildingRentTypes) {
-        this.listAssignmentBuildings = buildingRentTypes;
+    @ManyToMany
+    @JoinTable(
+            name = "assignmentbuilding",
+            joinColumns = @JoinColumn(name = "buildingid"),
+            inverseJoinColumns = @JoinColumn(name = "staffid")
+    )
+    private List<UserEntity> staffs = new ArrayList<>();
+
+    public void setStaffs(List<UserEntity> staffs) {
+        this.staffs = staffs;
     }
 }
