@@ -1,0 +1,9 @@
+# Bỏ qua thư mục .idea (cấu hình của IDE)
+.idea/
+
+# Bỏ qua thư mục target (thư mục build của Maven)
+target/
+
+# Bỏ qua tệp sppring-bôt.iml (tệp cấu hình dự án của IDE)
+sppring-boot.iml
+
