@@ -27,9 +27,10 @@ public class BuildingAPI {
         BuildingDTO dto = buildingDTO;
     }
 
-    @DeleteMapping ("/{ids}")
-    public void XoaBuilding(@PathVariable List<Long> ids) {
-
+    @DeleteMapping ("/{buildingIds}")
+    public ResponseDTO XoaBuilding(@PathVariable List<Long> buildingIds) {
+        ResponseDTO response = buildingService.DeleteBuilding(buildingIds);
+        return  response;
     }
 
     @PostMapping ("/{ids}")

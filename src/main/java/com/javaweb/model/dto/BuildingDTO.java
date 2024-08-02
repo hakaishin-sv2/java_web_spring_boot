@@ -1,6 +1,5 @@
 package com.javaweb.model.dto;
 
-import com.javaweb.entity.BuildingRenttypeEntity;
 import com.javaweb.entity.DistrictEntity;
 
 import javax.persistence.Entity;
@@ -18,15 +17,6 @@ public class BuildingDTO extends AbstractDTO{
     private String level;
     private List<String> typeCode;
     private Long districtid;
-//    private List<String> typeCode;
-    private List<BuildingRenttypeEntity> buildingRentTypes;
-    public List<BuildingRenttypeEntity> getRentTypes() {
-        return buildingRentTypes;
-    }
-
-    public void setRentTypes(List<BuildingRenttypeEntity> rentTypes) {
-        this.buildingRentTypes = rentTypes;
-    }
 
     private String overtimeFee;
     private String electricityFee;

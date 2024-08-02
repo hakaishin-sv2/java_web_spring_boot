@@ -11,9 +11,6 @@ public class RentTypeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "rentTypes")
-    private List<BuildingRenttypeEntity> buildingRenttypeEntities;
-
     @Column(name = "name")
     private String name;
 
@@ -36,13 +33,7 @@ public class RentTypeEntity {
         this.id = id;
     }
 
-    public List<BuildingRenttypeEntity> getBuildingRenttypeEntities() {
-        return buildingRenttypeEntities;
-    }
 
-    public void setBuildingRenttypeEntities(List<BuildingRenttypeEntity> buildingRenttypeEntities) {
-        this.buildingRenttypeEntities = buildingRenttypeEntities;
-    }
 
     public String getName() {
         return name;
@@ -57,5 +48,16 @@ public class RentTypeEntity {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public List<BuildingEntity> getBuildings() {
+        return buildings;
+    }
+
+    @ManyToMany(mappedBy = "renttypes")
+    private List<BuildingEntity> buildings;
+
+    public void setBuildings(List<BuildingEntity> buildings) {
+        this.buildings = buildings;
     }
 }

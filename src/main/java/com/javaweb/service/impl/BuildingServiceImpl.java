@@ -11,16 +11,18 @@ import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.ResponseDTO;
 import com.javaweb.model.response.StaffResponseDTO;
 
-import com.javaweb.repository.BuildingRentypeRepository;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.BuildingService;
 import org.hibernate.property.access.spi.PropertyAccessBuildingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BuildingServiceImpl implements BuildingService {
@@ -29,52 +31,41 @@ public class BuildingServiceImpl implements BuildingService {
     @Autowired
     private  UserRepository  userRepository;
     @Autowired
-    private BuildingRentypeRepository buildingRentypeRepository;
-    @Autowired
     private BuildingConverter buildingConverter;
 
     @Override
-    public List<BuildingDTO> serBuildingDtos(BuildingSearchRequest searchRequest) {
-        List<BuildingEntity> buildingEntities = buildingRepository.searchBuildings(searchRequest);
-        List<BuildingDTO> buildingDTOS = new ArrayList<>();
-        for (BuildingEntity buildingEntity : buildingEntities) {
-            BuildingDTO buildingDTO = new BuildingDTO();
-            buildingDTO=      buildingConverter.convertToDto(buildingEntity);
-            buildingDTOS.add(buildingDTO);
-        }
-        return buildingDTOS;
+    public Page<BuildingDTO> serBuildingDtos(BuildingSearchRequest searchRequest, Pageable pageable) {
+        Page<BuildingEntity> buildingEntitiesPage = buildingRepository.searchBuildings(searchRequest, pageable);
+        List<BuildingEntity> buildingEntities = buildingEntitiesPage.getContent();
+        return buildingEntitiesPage.map(buildingConverter::convertToDto);
     }
 
     @Override
-    public List<BuildingDTO> getBuildings() {
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll();
-        List<BuildingDTO> buildingDTOS = new ArrayList<>();
-        for (BuildingEntity buildingEntity : buildingEntities) {
-            BuildingDTO buildingDTO = buildingConverter.convertToDto(buildingEntity);
-            buildingDTOS.add(buildingDTO);
-        }
-        return buildingDTOS;
+    public Page<BuildingDTO> getBuildings(Pageable pageable) {
+        Page<BuildingEntity> buildingEntitiesPage = buildingRepository.findAll(pageable);
+        return buildingEntitiesPage.map(buildingConverter::convertToDto);
     }
 
     @Override
-    public  BuildingEntity CreateBuilding(BuildingDTO buildingDTO) {
+    public  ResponseDTO CreateBuilding(BuildingDTO buildingDTO) {
         BuildingEntity buildingEntity = buildingConverter.convertToEntity(buildingDTO);
-        return buildingRepository.save(buildingEntity);
+        return null;
     }
     @Override
     public  BuildingEntity UpdateBuilding(Long id ,BuildingDTO buildingDTO) {
-        Optional<BuildingEntity> buildingOptional = buildingRepository.findById(id);
-        if (buildingOptional.isPresent()) {
-            BuildingEntity buildingEntity = buildingConverter.convertToEntity(buildingDTO);
-            if(buildingDTO.getTypeCode()!=null){
-                buildingRentypeRepository.deleteById(id);
-
-            }
-            return buildingRepository.save(buildingEntity);
-        } else {
-            // Xử lý trường hợp không tìm thấy
-            return null;
-        }
+//        Optional<BuildingEntity> buildingOptional = buildingRepository.findById(id);
+//        if (buildingOptional.isPresent()) {
+//            BuildingEntity buildingEntity = buildingConverter.convertToEntity(buildingDTO);
+//            if(buildingDTO.getTypeCode()!=null){
+//                buildingRentypeRepository.deleteById(id);
+//
+//            }
+//            return buildingRepository.save(buildingEntity);
+//        } else {
+//            // Xử lý trường hợp không tìm thấy
+//            return null;
+//        }
+        return  null;
     }
 
     @Override
@@ -159,10 +150,17 @@ public class BuildingServiceImpl implements BuildingService {
             throw new RuntimeException("Error assigning building", e);
         }
     }
-//    @Override
-//    public List<UserEntity> findUsersByRole(Long role) {
-//       List<UserEntity> list = buildingRepository.findUsersByRole(role);
-//       return list;
-//    }
+
+    @Override
+    @Transactional
+    public ResponseDTO DeleteBuilding(List<Long> buildingIds) {
+        if (buildingIds == null || buildingIds.isEmpty()) {
+            throw new RuntimeException("The building ID list must not be null or empty");
+        }
+        buildingRepository.deleteByIdIn(buildingIds);
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setMessage("Buildings deleted successfully");
+        return responseDTO;
+    }
 
 }

@@ -376,6 +376,33 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <!-- Phân Trang -->
+                            <div class="dataTables_paginate col-sm-6 infoBar align-left">
+                                <div class="infos">
+                                    <span>${totalItems} items found, displaying ${(currentPage - 1) * pageSize + 1} to ${((currentPage - 1) * pageSize) + buildingList.size()}</span>
+                                </div>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination">
+                                        <c:if test="${currentPage > 1}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/building-list?page=${currentPage - 1}&size=${pageSize}">&laquo;</a>
+                                            </li>
+                                        </c:if>
+                                        <c:forEach var="i" begin="1" end="${totalPages}" step="1">
+                                            <li class="page-item <c:if test="${i == currentPage}">active</c:if>">
+                                                <a class="page-link" href="/admin/building-list?page=${i}&size=${pageSize}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/building-list?page=${currentPage + 1}&size=${pageSize}">&raquo;</a>
+                                            </li>
+                                        </c:if>
+                                    </ul>
+                                </nav>
+                            </div>
+
+
                         </div>
                     </div>
 
@@ -471,8 +498,6 @@
             var staffIDs = JSON.stringify(selectedValues);
             //console.log("Data object:", data); // In đối tượng data ra console
             console.log("JSON data:", staffIDs);
-
-            // Thực hiện gọi AJAX tại đây nếu cần
             $.ajax({
                 url: '/api/building/'+buildingId+"/assignmentbuilding",
                 type: 'POST',

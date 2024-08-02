@@ -42,8 +42,6 @@ public class BuildingEntity {
     @JoinColumn(name = "districtid")
     private DistrictEntity district;
 
-    @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BuildingRenttypeEntity> buildingRentTypes;
 
     public BuildingEntity(Long buildingId){
       this.id = buildingId;
@@ -157,13 +155,6 @@ public class BuildingEntity {
         this.district = district;
     }
 
-    public List<BuildingRenttypeEntity> getBuildingRentTypes() {
-        return buildingRentTypes;
-    }
-
-    public void setBuildingRentTypes( List<BuildingRenttypeEntity> buildingRentTypes) {
-        this.buildingRentTypes = buildingRentTypes;
-    }
 
     public List<UserEntity> getStaffs() {
         return staffs;
@@ -178,5 +169,20 @@ public class BuildingEntity {
     private List<UserEntity> staffs = new ArrayList<>();
     public void setStaffs(List<UserEntity> staffs) {
         this.staffs = staffs;
+    }
+    @ManyToMany
+    @JoinTable(
+            name = "buildingrenttype",
+            joinColumns = @JoinColumn(name = "buildingid"),
+            inverseJoinColumns =@JoinColumn(name = "renttypeid")
+    )
+    private List<RentTypeEntity> renttypes = new ArrayList<>();
+
+    public void setRenttypes(List<RentTypeEntity> renttypes) {
+        this.renttypes = renttypes;
+    }
+
+    public List<RentTypeEntity> getRenttypes() {
+        return renttypes;
     }
 }
